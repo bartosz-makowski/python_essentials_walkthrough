@@ -1,1 +1,1 @@
-### Python essentials walthrough project from Code Institute course
+### Python essentials walkthrough project from Code Institute course :snake:

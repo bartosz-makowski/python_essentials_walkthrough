@@ -10,7 +10,14 @@ class JobScrape():
                     'results' : '#ResultsContainer',
                     'not_found' : '.pivot.block',
                     'desc_text' : '[name=\"sanitizedHtml\"]'
-        }}]
+                }},
+                {"indeed":
+                    {"url": "https://ie.indeed.com",
+                    "query_format": "/jobs?q={keywords}&l={city}%2C{country}",
+                    "results": "#resultsCol",
+                    "not_found": ".bad_query",
+                    "desc_text": ".summary"
+                }}]
         try:
             self.site_name = site_name
             self.site_data = [site[site_name] for site in sites if site_name in site][0]
@@ -24,7 +31,8 @@ class JobScrape():
 
         if self.site_name.lower() == 'monster':
             return self._format_monster(jobs, desc) if jobs else None
-
+        elif self.site_name.lower() == "indeed":
+            return self._format_indeed(jobs, desc) if jobs else None
 
     def _scrape_site(self, city, country, keywords,):
         """
@@ -65,6 +73,27 @@ class JobScrape():
             job_summaries.append(job)
 
         return job_summaries
+
+    def _format_indeed(self, results, desc):
+        """
+        Non public method to return job details from indeed
+        """
+        job_summaries = []
+
+        cards = results.find('.jobsearch-SerpJobCard')
+
+        for card in cards:
+            job = {}
+            job['title'] = card.find('.title a', first=True).text
+            job['company'] = card.find('.sjcl .company', first=True).text
+            url = card.find('.title a', first=True)
+            job['url'] = url.attrs['href']
+
+                        
+            job_summaries.append(job)
+
+        return job_summaries
+
 
     def _get_description(self, url):
         """
